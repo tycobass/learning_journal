@@ -2,3 +2,5 @@
 .DS_Store
 *.egg-info
 *.sqlite
+quicker.py
+quick.py
