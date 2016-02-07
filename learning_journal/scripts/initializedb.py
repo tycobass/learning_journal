@@ -11,9 +11,15 @@ from pyramid.paster import (
 
 from pyramid.scripts.common import parse_vars
 
+#from ..models import (   original from classroom example
+#    DBSession,
+#    MyModel,
+#    Base,
+#    )
+
 from ..models import (
     DBSession,
-    MyModel,
+    Entry,
     Base,
     )
 
@@ -36,5 +42,6 @@ def main(argv=sys.argv):
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
     with transaction.manager:
-        model = MyModel(name='one', value=1)
+        # model = MyModel(name='one', value=1)
+        model = Entry(title='two', body='rabbits')
         DBSession.add(model)
