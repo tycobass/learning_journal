@@ -6,7 +6,8 @@ from sqlalchemy import (
     String,
     DateTime,
     Unicode,
-    desc
+    desc,
+    funcfilter   #### for filter method
     )
 from datetime import datetime
 
@@ -39,26 +40,42 @@ class Entry(Base):
     title = Column(Unicode(255), unique=True, nullable=False)
     body = Column(Unicode)
     created = Column(DateTime(timezone=True), default = datetime.utcnow)
-    modified = Column(DateTime(timezone=True),onupdate = datetime.utcnow)
+    modified = Column(DateTime(timezone=True),\
+        default = datetime.utcnow, onupdate = datetime.utcnow)
 
     @classmethod
-    def alls(cls, session=None):
-        print('class', cls)
+    def all(cls, insight=None, session=None):
+        #return the all entries sorted (desc) by id
         if session == None:
             session = DBSession
         q1 = session.query(cls)
         all_entries = q1.order_by(desc(cls.id))
-        [print(n.title) for n in all_entries] 
-        print('\n\nall entries value - \n', all_entries, '\n')
+        [print('\n', n.id, ' | ', n.title, ' | ', n.body, ' | ',\
+         n.created, ' | ', n.modified, '\n') for n in all_entries]
         return all_entries
 
+
     @classmethod
-    def by_id(cls):
-        q1 = DBSession.query(cls, session = None)
+    def by_id(cls, id_num, session=None):
+        #return the entry by the given id
         if session == None:
             session = DBSession
-        id_entry = q1.query(cls).order_by(desc(cls.id))
+        q1 = DBSession.query(cls)
+        ### session.query(MyModel).filter(MyModel.value < 20)]
+        print('\nid_num value - ', id_num, '\n')
+        id_entry = q1.filter(cls.id==id_num)
+        [print('\n', n.id, ' | ', n.title, ' | ', n.body, ' | ',\
+         n.created, ' | ', n.modified, '\n', 'now method\n') for n in id_entry]
+        cls.insight(id_entry)
         return id_entry
 
+    @classmethod
+    def insight(cls, query_result, session=None):
+        #return the all entries sorted (desc) by id
+        if session == None:
+            session = DBSession
+        [print('\n', n.id, ' | ', n.title, ' | ', n.body, ' | ',\
+         n.created, ' | ', n.modified, '\n') for n in query_result]
+        return
 
 Index('my_index', Entry.title, unique=True, mysql_length=255)
