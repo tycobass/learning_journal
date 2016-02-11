@@ -29,9 +29,9 @@ class Entry(Base):
     id = Column(Integer, primary_key=True)
     title = Column(Unicode(255), unique=True, nullable=False)
     body = Column(Unicode)
-    created = Column(DateTime(timezone=True), default = datetime.utcnow)
-    modified = Column(DateTime(timezone=True),\
-        default = datetime.utcnow, onupdate = datetime.utcnow)
+    created = Column(DateTime, default = datetime.utcnow)
+    modified = Column(DateTime, default = datetime.utcnow,\
+         onupdate = datetime.utcnow)
 
     @classmethod
     def all(cls, insight=None, session=None):
@@ -40,7 +40,7 @@ class Entry(Base):
             session = DBSession
         q1 = session.query(cls)   # alias "session.query"
         all_entries = q1.order_by(desc(cls.id)) #create select all query
-        if insight != None:  # print results of query
+        if insight is not None:  # print results of query
             cls.insight(all_entries)
         return all_entries
 
@@ -52,7 +52,7 @@ class Entry(Base):
             session = DBSession
         q1 = DBSession.query(cls)  # alias "session.query"
         id_entry = q1.filter(cls.id==id_num)  #create select by id query
-        if insight != None:  # print results of query
+        if insight is not None:  # print results of query
             cls.insight(id_entry)
         return id_entry
 
