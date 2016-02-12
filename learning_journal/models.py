@@ -7,7 +7,6 @@ from sqlalchemy import (
     DateTime,
     Unicode,
     desc,
-    funcfilter   #### for filter method
     )
 from datetime import datetime
 
@@ -51,7 +50,7 @@ class Entry(Base):
         if session == None:  # Assure session will work in pshell
             session = DBSession
         q1 = DBSession.query(cls)  # alias "session.query"
-        id_entry = q1.filter(cls.id==id_num)  #create select by id query
+        id_entry = q1.get(id_num)  #create select by id query
         if insight is not None:  # print results of query
             cls.insight(id_entry)
         return id_entry
