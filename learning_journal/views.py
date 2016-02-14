@@ -6,7 +6,8 @@ from .models import (
     Entry,
     )
 
-from .forms import EntryCreateForm
+from .forms import EntryCreateForm  #WTForm from forms.py
+from .forms import EntryEditForm   #WTForm  from forms.py
 
 
 
@@ -20,7 +21,6 @@ def index_page(request):
 def view(request):
     this_id = request.matchdict.get('id', -1)
     entries = Entry.by_id(this_id)
-    print('\nentries value', entries, '\n\n')
     if not entries:
         return HTTPNotFound()
     return {'entry': entries}
@@ -38,7 +38,19 @@ def create(request):
     return {'form': form, 'action': request.matchdict.get('action')}
 
 
+
+
 @view_config(route_name='action', match_param='action=edit',
-             renderer='string')
+             renderer='templates/edit.jinja2')
 def update(request):
-    return 'edit page'
+    # this_id = request.matchdict.get('id', -1)
+    this_id = request.matchdict.get('2', -1)
+    print ('my id value ==== ', this_id)
+    # entries = Entry.by_id(this_id)
+    entries = Entry.by_id(3)
+    form = EntryEditForm(request.POST, entries)
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(entries)
+        entries.save()
+        redirect('update')
+    return {'form': form, 'action': request.matchdict.get('action')}

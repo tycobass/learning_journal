@@ -55,6 +55,16 @@ class Entry(Base):
             cls.insight(id_entry)
         return id_entry
 
+
+    @classmethod
+    def save (cls, session=None):
+        #save revised row information back to database
+        if session == None:  # Assure session will work in pshell
+            session = DBSession
+        q1 = DBSession.query(cls)  # alias "session.query"
+        q1.update(cls.title).values('Jennifer')
+
+
     @classmethod
     def insight(cls, query_result, session=None):
         #Debug - print the query results for review by developer
