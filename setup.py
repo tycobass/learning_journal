@@ -17,8 +17,18 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
-    'wtforms'
+    'wtforms',
+    'passlib',
+    'markdown',
+    'pygments',
     ]
+
+#Added from class notes
+from passlib.context import CryptContext
+password_context = CryptContext(schemes=['pbkdf2_sha512'])
+hashed = password_context.encrypt('password')
+if password_context.verify('password', hashed):
+    print ("It matched")
 
 setup(name='learning_journal',
       version='0.0',

@@ -6,9 +6,12 @@ from sqlalchemy import (
     String,
     DateTime,
     Unicode,
+    UnicodeText,
     desc,
     )
 from datetime import datetime
+
+from passlib.context import CryptContext
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -22,12 +25,24 @@ from zope.sqlalchemy import ZopeTransactionExtension
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
+# then lower down, make a context at module scope:
+password_context = CryptContext(schemes=['pbkdf2_sha512'])
+
+
+class MyModel(Base):
+    __tablename__ = 'models'
+    id = Column(Integer, primary_key=True)
+    name = Column(Text)
+    value = Column(Integer)
+
+Index('my_index', MyModel.name, unique=True, mysql_length=255)
+
 
 class Entry(Base):
     __tablename__ = 'entries'
     id = Column(Integer, primary_key=True)
     title = Column(Unicode(255), unique=True, nullable=False)
-    body = Column(Unicode)
+    body = Column(UnicodeText,default=u'')
     created = Column(DateTime, default = datetime.utcnow)
     modified = Column(DateTime, default = datetime.utcnow,\
          onupdate = datetime.utcnow)
@@ -45,25 +60,10 @@ class Entry(Base):
 
 
     @classmethod
-    def by_id(cls, id_num, insight=None, session=None):
-        #return the entry by the given id
-        if session == None:  # Assure session will work in pshell
+    def by_id(cls, id, session=None):
+        if session is None:
             session = DBSession
-        q1 = DBSession.query(cls)  # alias "session.query"
-        id_entry = q1.get(id_num)  #create select by id query
-        if insight is not None:  # print results of query
-            cls.insight(id_entry)
-        return id_entry
-
-
-    @classmethod
-    def save (cls, session=None):
-        #save revised row information back to database
-        if session == None:  # Assure session will work in pshell
-            session = DBSession
-        q1 = DBSession.query(cls)  # alias "session.query"
-        q1.update(cls.title).values('Jennifer')
-
+        return session.query(cls).get(id)
 
     @classmethod
     def insight(cls, query_result, session=None):
@@ -74,4 +74,19 @@ class Entry(Base):
          n.created, ' | ', n.modified, '\n') for n in query_result]
         return
 
-Index('my_index', Entry.title, unique=True, mysql_length=255)
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Unicode(255), unique=True, nullable=False)
+    password = Column(Unicode(255), nullable=False)
+
+    @classmethod
+    def by_name(cls, name, session=None):
+        if session is None:
+            session = DBSession
+        return DBSession.query(cls).filter(cls.name == name).first()
+
+    @classmethod
+    def verify_password(self, password):
+        return password_context.verify(password, self.password)
