@@ -17,6 +17,9 @@ from pyramid.security import forget, remember
 from .forms import LoginForm
 from .models import User
 
+# add two imports:
+from jinja2 import Markup
+import markdown
 
 
 @view_config(route_name='home', renderer='templates/list.jinja2')
@@ -82,3 +85,9 @@ def sign_in(request):
     else:
         headers = forget(request)
     return HTTPFound(location=request.route_url('home'), headers=headers)
+
+
+# and a function from class notes
+def render_markdown(content):
+    output = Markup(markdown.markdown(content))
+    return output
