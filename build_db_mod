@@ -1,2 +1,0 @@
-python setup.py develop
-setup_db production.ini
