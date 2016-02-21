@@ -1,1 +1,1 @@
-web: ./python setup.py develop; ./python runapp.py
+web: python setup.py develop; python runapp.py
